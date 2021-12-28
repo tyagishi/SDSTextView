@@ -1,3 +1,5 @@
 # SDSTextView
 
-A description of this package.
+simple wrapped NSTextView with using TextKit2 for SwiftUI
+
+under development
