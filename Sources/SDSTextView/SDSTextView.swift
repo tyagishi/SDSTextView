@@ -10,8 +10,15 @@ import SwiftUI
 import AppKit
 import Combine
 
+public class TextEditorControl: ObservableObject {
+    @Published public var firstResponder: Bool = false
+    @Published public var focusRange: NSRange? = nil
+    public init() {}
+}
+
 public struct SDSTextView: NSViewRepresentable {
     @Binding var text: String
+    @ObservedObject var control: TextEditorControl
     let rect: CGRect
     let textContentStorageDelegate: NSTextContentStorageDelegate?
     let textStorageDelegate: NSTextStorageDelegate?
@@ -19,9 +26,12 @@ public struct SDSTextView: NSViewRepresentable {
 
     var textKit1Check: AnyCancellable? = nil
     
-    public init(text: Binding<String>, rect: CGRect, textContentStorageDelegate: NSTextContentStorageDelegate? = nil,
+    public init(text: Binding<String>,
+                control: TextEditorControl,
+                rect: CGRect, textContentStorageDelegate: NSTextContentStorageDelegate? = nil,
                 textStorageDelegate: NSTextStorageDelegate? = nil, textLayoutManagerDelegate: NSTextLayoutManagerDelegate? = nil ) {
         self._text = text
+        self.control = control
         self.rect = rect
         self.textContentStorageDelegate = textContentStorageDelegate
         self.textStorageDelegate = textStorageDelegate
@@ -64,6 +74,16 @@ public struct SDSTextView: NSViewRepresentable {
            let textStorage = textView.textStorage {
             print("text is updated in updateNSView")
             textStorage.setAttributedString(NSAttributedString(string: text))
+        }
+        DispatchQueue.main.async {
+            if self.control.firstResponder == true {
+                textView.window?.makeFirstResponder(textView)
+                self.control.firstResponder = false
+            }
+            if let focusRange = self.control.focusRange {
+                textView.scrollRangeToVisible(focusRange)
+                self.control.focusRange = nil
+            }
         }
     }
     
