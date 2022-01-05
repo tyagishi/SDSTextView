@@ -101,3 +101,31 @@ public struct SDSTextView: NSViewRepresentable {
         }
     }
 }
+
+public struct SDSPushOutTextView: View {
+    @Binding var text: String
+    let control: TextEditorControl
+    let textContentStorageDelegate: NSTextContentStorageDelegate?
+    let textStorageDelegate: NSTextStorageDelegate?
+    let textLayoutManagerDelegate: NSTextLayoutManagerDelegate?
+
+    public init(text: Binding<String>, control: TextEditorControl,
+                textContentStorageDelegate: NSTextContentStorageDelegate? = nil,
+                textStorageDelegate: NSTextStorageDelegate? = nil, textLayoutManagerDelegate: NSTextLayoutManagerDelegate? = nil ) {
+        self._text = text
+        self.control = control
+        self.textContentStorageDelegate = textContentStorageDelegate
+        self.textStorageDelegate = textStorageDelegate
+        self.textLayoutManagerDelegate = textLayoutManagerDelegate
+    }
+    
+    public var body: some View {
+        GeometryReader { geom in
+            SDSTextView(text:$text, control: control,
+                        rect: geom.frame(in: .local),
+                        textContentStorageDelegate: textContentStorageDelegate,
+                        textStorageDelegate: textStorageDelegate,
+                        textLayoutManagerDelegate: textLayoutManagerDelegate)
+        }
+    }
+}
